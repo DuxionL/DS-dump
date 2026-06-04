@@ -1,0 +1,220 @@
+/*
+Kelas TI B Kelompok 6 GENAP
+-	535250061 : Lulu Lydia Andrean
+-	535250077 : Garry Malvin Jiu
+-	535250093 : Jessica Jeslyn Sutanto
+-	535250096 : Chatrina Citra Patricia Hutabarat
+ */
+package com.datastruct;
+/* 
+ * Struktur data Graph dengan bobot pada setiap edge
+ * sources: https://www.lavivienpost.net/weighted-graph-as-adjacency-list/  
+ * 
+ */
+
+import java.util.HashMap;
+import java.util.Map;
+
+class Edge<T> { 
+    T vertex;
+	private T neighbor; //connected vertex
+	private int weight; //weight
+	
+	//Constructor, Time O(1) Space O(1)
+	public Edge(T u,T v, int w) {
+		this.vertex = u;
+		this.neighbor = v; 
+		this.weight = w;
+	}
+
+	public void setNeighbor(T neighbor) {
+		this.neighbor = neighbor;
+	}
+	public T getNeighbor() {
+		return neighbor;
+	}
+	public void setWeight(int weight) {
+		this.weight = weight;
+	}
+	public int getWeight() {
+		return weight;
+	}
+	
+	//Time O(1) Space O(1)
+	@Override
+	public String toString() {
+		return "(" + neighbor + "," + weight + ")";
+	}
+}
+
+//helper buat djak apap
+class DijkstraEntry<T> {
+	T vertex;
+	int dist;
+
+	DijkstraEntry(T vertex, int dist) {
+		this.vertex = vertex;
+		this.dist = dist;
+	}
+}
+
+public class Graph<T> { 
+	// Package-private so dijkstra() in the same package can access it
+	Map<T, MyLinearList<Edge<T>>> adj;
+	boolean directed;
+	
+	//Constructor, Time O(1) Space O(1)
+	public Graph (boolean type) { 
+        adj = new HashMap<>();
+		directed = type; // false: undirected, true: directed
+	}
+
+    //Add edges including adding nodes, Time O(1) Space O(1)
+	public void addEdge(T a, T b, int w) {
+		adj.putIfAbsent(a, new MyLinearList<>()); //add node
+		adj.putIfAbsent(b, new MyLinearList<>()); //add node
+		Edge<T> edge1 = new Edge<>(b, w);
+		adj.get(a).pushQ(edge1); //add edge
+		if (!directed) { //undirected
+			Edge<T> edge2 = new Edge<>(a, w);
+			adj.get(b).pushQ(edge2);
+		}			
+	}
+
+    //Print graph as hashmap, Time O(V+E), Space O(1)
+	public void printGraph() {
+		for (T key: adj.keySet()) {
+			System.out.print(key.toString() + " : ");
+			MyLinearList<Edge<T>> thelist = adj.get(key);
+			Node<Edge<T>> curr = thelist.head;
+			while(curr != null) {
+				System.out.print(curr.getData());
+				curr = curr.getNext();
+			}
+			System.out.println();
+		}
+	}
+
+	/*
+	ref dari https://www.lavivienpost.net/weighted-graph-as-adjacency-list/#dfs , 
+	struktur w copy juga biar mirip beneran hehe
+	yang kepake (seharusnya) cuman mylinearlist
+	*/
+	//DFS
+	//Traversal starting from src, DFS, Time O(V+E), Space O(V)
+	public void DFS(T src) {
+		if (!adj.containsKey(src)) //invalid input
+			return;
+		HashMap<T, Boolean> visited = new HashMap<>();
+		helper(src, visited);
+		System.out.println();
+	}
+
+	//DFS helper, Time O(V+E), Space O(V)
+	private void helper(T v, HashMap<T, Boolean> visited) {
+		visited.put(v, true);
+		System.out.print(v.toString() + " ");
+		Node<Edge<T>> node = adj.get(v).head;
+		while (node != null) {
+			T u = node.getData().getNeighbor();
+			if (visited.get(u) == null)
+				helper(u, visited);
+			node = node.getNext();
+		}
+	}
+
+	//BFS
+	//Traversal starting from src, BFS, Time O(V+E), Space O(V)
+	public void BFS(T src) {
+		if (!adj.containsKey(src)) //invalid input
+			return;
+		MyLinearList<T> q = new MyLinearList<>();
+		HashMap<T, Boolean> visited = new HashMap<>();
+		q.pushQ(src);
+		visited.put(src, true);
+		while (!q.isEmpty()) {
+			T v = q.remove();
+			System.out.print(v.toString() + " ");
+			Node<Edge<T>> node = adj.get(v).head;
+			while (node != null) {
+				T u = node.getData().getNeighbor();
+				if (visited.get(u) == null) {
+					q.pushQ(u);
+					visited.put(u, true);
+				}
+				node = node.getNext();
+			}
+		}
+		System.out.println();
+	}
+
+	public void deleteEdge(T a, T b) {
+		if (!adj.containsKey(a) || !adj.containsKey(b)) return;
+
+		MyLinearList<Edge<T>> listA = adj.get(a);
+		Node<Edge<T>> curr = listA.head;
+		while (curr != null) {
+			if (curr.getData().getNeighbor().equals(b)) {
+				listA.remove(curr.getData());
+				break;
+			}
+			curr = curr.getNext();
+		}
+
+		if (!directed) {
+			MyLinearList<Edge<T>> listB = adj.get(b);
+			curr = listB.head;
+			while (curr != null) {
+				if (curr.getData().getNeighbor().equals(a)) {
+					listB.remove(curr.getData());
+					break;
+				}
+				curr = curr.getNext();
+			}
+			if (listB.isEmpty()) adj.remove(b);
+		}
+
+		if (listA.isEmpty()) adj.remove(a);
+	}
+
+	//seharusny dh bener, output sama kek contoh, cuman pake map
+	//surely
+	public Map<T, Integer> dijkstra(T start, Map<T, T> prev) {
+		Map<T, Integer> res = new HashMap<>();
+		MyLinearList<DijkstraEntry<T>> pq = new MyLinearList<>();
+		for (T key : adj.keySet()) {
+			res.put(key, Integer.MAX_VALUE);
+			prev.put(key, null);
+		}
+		res.put(start, 0);
+		pq.pushQ(new DijkstraEntry<>(start, 0));
+		while (!pq.isEmpty()) {
+			T u = pq.remove().vertex;
+			if (adj.get(u) == null) continue;
+			Node<Edge<T>> node = adj.get(u).head;
+			while (node != null) {
+				T v = node.getData().getNeighbor();
+				int weight = node.getData().getWeight();
+				if (res.get(v) > res.get(u) + weight) {
+					res.put(v, res.get(u) + weight);
+					prev.put(v, u);
+					DijkstraEntry<T> newEntry = new DijkstraEntry<>(v, res.get(v));
+					if (pq.isEmpty() || pq.head.getData().dist >= newEntry.dist) {
+						pq.pushS(newEntry);
+					} else {
+						Node<DijkstraEntry<T>> curr = pq.head;
+						while (curr.getNext() != null && curr.getNext().getData().dist < newEntry.dist) {
+							curr = curr.getNext();
+						}
+						Node<DijkstraEntry<T>> newNode = new Node<>(newEntry);
+						newNode.setNext(curr.getNext());
+						curr.setNext(newNode);
+						if (newNode.getNext() == null) pq.tail = newNode;
+					}
+				}
+				node = node.getNext();
+			}
+		}
+		return res;
+	}
+}
