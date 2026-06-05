@@ -276,7 +276,7 @@ public class UAS_TJ {
     siapa tau CLI frontend dinilai
      */
 
-    static final String GARIS_TEBAL  = "-".repeat(75);
+    static final String GARIS_TEBAL  = "<=>".repeat(25);
     static final String GARIS_TIPIS  = "-".repeat(50);
 
     static void printJudul(String judul) {
@@ -333,14 +333,14 @@ public class UAS_TJ {
                     break;
                 }
             } catch (NumberFormatException ignored) { /* lanjut ke pesan error, grgr koding backen gatel malah masukin */ }
-            System.out.printf("  Input tidak valid. Masukkan angka antara 1 dan %d.%n", halteList.size());
+            System.out.printf("  Input invalid. antara 1 dan %d.%n", halteList.size());
         }
 
         //Jalanin Dijkstra sekali dari halte yang dipilih
         DijkstraResult result = dijkstra(startHalte);
 
         //Show semua destinasi, 50 total banyak bet
-        printBagian("Langkah 2 - Daftar 50 destinasi wisata Jakarta");
+        printBagian("50 Destinations");
         System.out.printf("  Halte asal: %s%n%n", startHalte);
         System.out.printf("  %-4s  %-42s  %-28s  %s%n", "No.", "Destinasi", "Halte terdekat", "Jarak");
         System.out.println("  " + "-".repeat(69));
@@ -361,7 +361,7 @@ public class UAS_TJ {
         }
 
         //pilih destinasi tujuan
-        printBagian("Where you wanna go brok");
+        printBagian("Where you wanna go");
 
         int destChoice;
         while (true) {
@@ -374,7 +374,7 @@ public class UAS_TJ {
                     break;
                 }
             } catch (NumberFormatException ignored) {}
-            System.out.printf("  Input tidak valid. Masukkan angka antara 1 dan %d.%n", destinations.size());
+            System.out.printf("  Input invalid. antara 1 dan %d.%n", destinations.size());
         }
 
         //akhirnya show shortest route
@@ -384,16 +384,16 @@ public class UAS_TJ {
         List<String> rute        = result.path(startHalte, halteTujuan);
 
         printBagian("Shortest Route");
-        System.out.printf("  Dari         : %s%n", startHalte);
-        System.out.printf("  Tujuan       : %s%n", tujuan.name());
-        System.out.printf("  Halte tujuan : %s%n", halteTujuan);
+        System.out.printf("  From        : %s%n", startHalte);
+        System.out.printf("  To          : %s%n", tujuan.name());
+        System.out.printf("  Final Stop  : %s%n", halteTujuan);
         System.out.println();
 
         if (rute.isEmpty()) {
             System.out.println("  Tidak ada jalur yang bisa dilalui dari halte ini ke tujuan tersebut.");
         } else {
             System.out.printf("  Total jarak  : %.2f km%n", totalJarak);
-            System.out.printf("  Jumlah halte : %d halte (%d pemberhentian)%n",
+            System.out.printf("  Jumlah halte : %d halte (%d Stops)%n",
                 rute.size(), rute.size() - 1);
             System.out.println();
             System.out.println("  Map:");
@@ -401,14 +401,14 @@ public class UAS_TJ {
             for (int i = 0; i < rute.size(); i++) {
                 boolean awal  = (i == 0);
                 boolean akhir = (i == rute.size() - 1);
-                String  label = awal ? "[ASAL]  " : akhir ? "[TUJUAN]" : "        ";
+                String  label = awal ? "[Start]  " : akhir ? "[End]" : "        ";
                 System.out.printf("  %s  %2d. %s%n", label, i + 1, rute.get(i));
                 if (!akhir) System.out.println("              |");
             }
         }
 
         //gkperlu tapi w copas dari kodingan lain cuman ganti2 ae, siapa tau dapet extra poin
-        printBagian("Info graf");
+        printBagian("Infograph");
         System.out.printf("  Jumlah vertex (halte) : %d%n", graph.size());
         System.out.printf("  Jumlah edge (jalur)   : %d%n",
             graph.values().stream().mapToInt(Map::size).sum());
