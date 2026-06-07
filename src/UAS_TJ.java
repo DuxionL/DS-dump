@@ -1,3 +1,10 @@
+/*
+Kelas TI B Kelompok 6 GENAP
+-	535250061 : Lulu Lydia Andrean
+-	535250077 : Garry Malvin Jiu
+-	535250093 : Jessica Jeslyn Sutanto
+-	535250096 : Chatrina Citra Patricia Hutabarat
+ */
 import java.util.*;
 import java.util.List;
 /*
